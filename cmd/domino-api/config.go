@@ -12,7 +12,6 @@ var Config ConfigType
 
 // ConfigType is the type of the configuration for the server.
 type ConfigType struct {
-	Assets   config.Assets   `toml:"assets"`
 	Database config.Database `toml:"database"`
 	HTTP     config.HTTP     `toml:"http"`
 }
@@ -20,7 +19,6 @@ type ConfigType struct {
 func init() {
 	// Create default config object.
 	Config = ConfigType{
-		Assets:   config.DefaultAssets,
 		Database: config.DefaultDatabase,
 		HTTP:     config.DefaultHTTP,
 	}

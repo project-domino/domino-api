@@ -1,4 +1,4 @@
-package templatefuncs
+package templates
 
 import "regexp"
 
