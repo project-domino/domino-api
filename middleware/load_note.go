@@ -6,7 +6,6 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
-	"github.com/project-domino/domino-go/db"
 	"github.com/project-domino/domino-go/errors"
 	"github.com/project-domino/domino-go/models"
 )
@@ -14,13 +13,13 @@ import (
 // LoadNote loads a note into the request context with specified objects
 // It also loads noteJSON, the note object serialized into JSON
 // :noteID must be in the URL
-func LoadNote(objects ...string) gin.HandlerFunc {
+func LoadNote(db *gorm.DB, objects ...string) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// Acquire noteID from URL
 		noteID := c.Param("noteID")
 
 		// Set objects to be preloaded to db
-		preloadedDB := db.DB.Where("id = ?", noteID)
+		preloadedDB := db.Where("id = ?", noteID)
 		for _, object := range objects {
 			preloadedDB = preloadedDB.Preload(object)
 		}

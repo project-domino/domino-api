@@ -4,7 +4,6 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/project-domino/domino-go/db"
 	"github.com/project-domino/domino-go/errors"
 	"github.com/project-domino/domino-go/models"
 )

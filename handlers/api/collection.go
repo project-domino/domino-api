@@ -5,7 +5,6 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
-	"github.com/project-domino/domino-go/db"
 	"github.com/project-domino/domino-go/errors"
 	"github.com/project-domino/domino-go/models"
 )
@@ -44,7 +43,7 @@ func NewCollection(c *gin.Context) {
 	}
 
 	// Create transaction to create collection
-	tx := db.DB.Begin()
+	tx := db.Begin()
 
 	// Create and save collection
 	newCollection := models.Collection{
@@ -113,7 +112,7 @@ func EditCollection(c *gin.Context) {
 
 	// Query db for collection
 	var collection models.Collection
-	if err := db.DB.Preload("Author").
+	if err := db.Preload("Author").
 		Where("id = ?", collectionID).First(&collection).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
 			errors.CollectionNotFound.Apply(c)
@@ -130,7 +129,7 @@ func EditCollection(c *gin.Context) {
 	}
 
 	// Create transaction to save collection
-	tx := db.DB.Begin()
+	tx := db.Begin()
 
 	// Clear current collection-note relationships
 	if err := tx.Where("collection_id = ?", collection.ID).

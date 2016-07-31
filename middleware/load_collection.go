@@ -5,7 +5,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
-	"github.com/project-domino/domino-go/db"
+	"github.com/project-domino/domino-go/dbutil"
 	"github.com/project-domino/domino-go/errors"
 	"github.com/project-domino/domino-go/models"
 )
@@ -13,13 +13,13 @@ import (
 // LoadCollection loads a collection into the request context with specified objects
 // It also loads collectionJSON, the collection object serialized into JSON
 // :collectionID must be in the URL
-func LoadCollection(objects ...string) gin.HandlerFunc {
+func LoadCollection(db *gorm.DB, objects ...string) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// Acquire collectionID from URL
 		collectionID := c.Param("collectionID")
 
 		// Set objects to be preloaded to db
-		preloadedDB := db.DB.Where("id = ?", collectionID)
+		preloadedDB := db.Where("id = ?", collectionID)
 		for _, object := range objects {
 			preloadedDB = preloadedDB.Preload(object)
 		}
@@ -36,7 +36,7 @@ func LoadCollection(objects ...string) gin.HandlerFunc {
 		}
 
 		// Load notes into the collection
-		if err := db.LoadCollectionNotes(&collection); err != nil {
+		if err := dbutil.LoadCollectionNotes(db, &collection); err != nil {
 			c.AbortWithError(500, err)
 			return
 		}

@@ -9,14 +9,13 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
-	"github.com/project-domino/domino-go/db"
 	"github.com/project-domino/domino-go/errors"
 	"github.com/project-domino/domino-go/models"
 )
 
 // Login handles requests to log a user in.
 // If credentials are valid, sets an auth cookie.
-func Login(c *gin.Context) {
+func Login(db *gorm.DB, c *gin.Context) {
 	// Get needed variables from request.
 	userName := c.PostForm("userName")
 	email := c.PostForm("email")
@@ -30,7 +29,7 @@ func Login(c *gin.Context) {
 
 	// Find user in the database
 	var users []models.User
-	if err := db.DB.Limit(1).
+	if err := db.Limit(1).
 		Where("email = ?", email).
 		Or("user_name = ?", userName).
 		Find(&users).
@@ -88,7 +87,7 @@ func Register(c *gin.Context) {
 
 	// Check if other users have the same email or userName
 	var checkUsers []models.User
-	if err := db.DB.Where("email = ?", email).
+	if err := db.Where("email = ?", email).
 		Or("user_name = ?", userName).
 		Find(&checkUsers).
 		Error; err != nil && err != gorm.ErrRecordNotFound {
@@ -113,7 +112,7 @@ func Register(c *gin.Context) {
 	}
 
 	// Add user to database.
-	if err := db.DB.Create(&user).Error; err != nil {
+	if err := db.Create(&user).Error; err != nil {
 		c.AbortWithError(500, err)
 		return
 	}
@@ -140,7 +139,7 @@ func AuthCookie(c *gin.Context, user models.User) {
 		return
 	}
 
-	if err := db.DB.Create(&authToken).Error; err != nil {
+	if err := db.Create(&authToken).Error; err != nil {
 		c.AbortWithError(500, err)
 		return
 	}

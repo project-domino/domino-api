@@ -1,11 +1,40 @@
-package db
+package main
 
-import "github.com/project-domino/domino-go/models"
+import (
+	"log"
+	"time"
 
-// Setup initializes the database with empty tables of all the needed
-// types.
-// TODO weights on searchtext
-func Setup() error {
+	"github.com/jinzhu/gorm"
+	"github.com/project-domino/domino-go/config"
+	"github.com/project-domino/domino-go/models"
+)
+
+// DB is the instance of the database.
+var DB *gorm.DB
+
+// OpenDB opens a database connection.
+func OpenDB(dbConfig config.Database) {
+	for {
+		var err error
+		log.Printf("Connecting to DB at %s...", dbConfig.URL)
+		DB, err = gorm.Open(
+			dbConfig.Type,
+			dbConfig.URL,
+		)
+		if err == nil {
+			break
+		}
+		log.Println(err)
+		log.Println("Failed to connect to database.")
+		time.Sleep(5 * time.Second)
+	}
+
+	DB.LogMode(dbConfig.Debug)
+}
+
+// SetupDB initializes the database with empty tables of all the needed types.
+func SetupDB() error {
+	// ewww sql
 	if !DB.HasTable(&models.User{}) {
 		DB.CreateTable(&models.User{})
 		DB.Exec("ALTER TABLE users ADD COLUMN searchtext TSVECTOR")
@@ -42,7 +71,7 @@ func Setup() error {
 	return DB.Error
 }
 
-// Creates a table for a specified struct if one doesn't exist
+// setupTable creates a table for a specified struct if one doesn't exist.
 func setupTable(val interface{}) {
 	if !DB.HasTable(val) {
 		DB.CreateTable(val)

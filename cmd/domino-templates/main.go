@@ -1,17 +1,17 @@
 package main
 
 import (
-	"fmt"
 	"log"
 
 	"github.com/gin-gonic/gin"
-	_ "github.com/jinzhu/gorm/dialects/postgres"
 	"github.com/project-domino/domino-go/handlers"
 	"github.com/project-domino/domino-go/handlers/api"
 	"github.com/project-domino/domino-go/handlers/redirect"
 	"github.com/project-domino/domino-go/middleware"
 	"github.com/project-domino/domino-go/models"
 	"github.com/project-domino/domino-go/templates"
+
+	_ "github.com/jinzhu/gorm/dialects/postgres"
 )
 
 func main() {
@@ -112,5 +112,7 @@ func main() {
 			handlers.Simple("new-tag.html"))
 
 	// Start serving.
-	Must(r.Run(fmt.Sprintf(":%d", Config.HTTP.Port)))
+	if err := r.Run(Config.HTTP.ServeOn()); err != nil {
+		log.Fatal(err)
+	}
 }

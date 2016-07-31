@@ -1,21 +1,22 @@
 package main
 
 import (
-	"fmt"
 	"log"
 
 	"github.com/gin-gonic/gin"
-	_ "github.com/jinzhu/gorm/dialects/postgres"
-	"github.com/project-domino/domino-go/db"
+	"github.com/project-domino/domino-go/api"
 	"github.com/project-domino/domino-go/middleware"
+
+	_ "github.com/jinzhu/gorm/dialects/postgres"
+	_ "github.com/project-domino/domino-go/api/v1"
 )
 
 func main() {
-	db.Open(Config.Database)
-	if err := db.Setup(); err != nil {
-		log.Fatal(err)
-	}
-	defer db.DB.Close()
+	// OpenDB(Config.Database)
+	// if err := SetupDB(); err != nil {
+	// 	log.Fatal(err)
+	// }
+	// defer DB.Close()
 
 	// Enable/disable gin's debug mode.
 	if Config.HTTP.Debug {
@@ -31,7 +32,13 @@ func main() {
 	r.Use(middleware.ErrorHandler())
 
 	// Add routes.
+	r.GET("/", api.Version)
+	for version, routes := range api.AllVersionRoutes() {
+		routes(r.Group("/" + version))
+	}
 
 	// Start serving.
-	Must(r.Run(fmt.Sprintf(":%d", Config.HTTP.Port)))
+	if err := r.Run(Config.HTTP.ServeOn()); err != nil {
+		log.Println(err)
+	}
 }

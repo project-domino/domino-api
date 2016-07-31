@@ -4,12 +4,13 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+	"github.com/jinzhu/gorm"
 	"github.com/project-domino/domino-go/errors"
 	"github.com/project-domino/domino-go/search"
 )
 
 // LoadSearchItems loads items that match a given query into the request context
-func LoadSearchItems() gin.HandlerFunc {
+func LoadSearchItems(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// Get request variables
 		q := c.DefaultQuery("q", "")
@@ -43,15 +44,15 @@ func LoadSearchItems() gin.HandlerFunc {
 
 		switch searchType {
 		case search.AllSearchType:
-			results, err = search.All(q, items)
+			results, err = search.All(db, q, items)
 		case search.NoteSearchType:
-			results, err = search.Notes(q, items, page)
+			results, err = search.Notes(db, q, items, page)
 		case search.CollectionSearchType:
-			results, err = search.Collections(q, items, page)
+			results, err = search.Collections(db, q, items, page)
 		case search.UserSearchType:
-			results, err = search.Users(q, items, page)
+			results, err = search.Users(db, q, items, page)
 		case search.TagSearchType:
-			results, err = search.Tags(q, items, page)
+			results, err = search.Tags(db, q, items, page)
 		default:
 			errors.NotFound.Apply(c)
 			return

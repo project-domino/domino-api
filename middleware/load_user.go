@@ -2,18 +2,18 @@ package middleware
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/project-domino/domino-go/db"
+	"github.com/jinzhu/gorm"
 	"github.com/project-domino/domino-go/models"
 )
 
 // LoadUser loads a user into the request context
-func LoadUser(objects ...string) gin.HandlerFunc {
+func LoadUser(db *gorm.DB, objects ...string) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// Acquire username from URL
 		username := c.Param("username")
 
 		// Set objects to be preloaded to db
-		preloadedDB := db.DB.Where("user_name = ?", username)
+		preloadedDB := db.Where("user_name = ?", username)
 		for _, object := range objects {
 			preloadedDB = preloadedDB.Preload(object)
 		}

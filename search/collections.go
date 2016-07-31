@@ -3,12 +3,12 @@ package search
 import (
 	"strings"
 
-	"github.com/project-domino/domino-go/db"
+	"github.com/jinzhu/gorm"
 	"github.com/project-domino/domino-go/models"
 )
 
 // Collections returns all collections that match a given query
-func Collections(q string, items int, page int) ([]models.Collection, error) {
+func Collections(db *gorm.DB, q string, items int, page int) ([]models.Collection, error) {
 	var collections []models.Collection
 
 	searchQuery, err := ParseQuery(q)
@@ -19,7 +19,7 @@ func Collections(q string, items int, page int) ([]models.Collection, error) {
 	qText := strings.Join(searchQuery.Text, " & ")
 
 	if q != "" {
-		if err := db.DB.
+		if err := db.
 			Preload("Tags").
 			Where(queryFormat, qText).
 			Where("published = ?", true).

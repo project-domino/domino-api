@@ -1,4 +1,4 @@
-package db
+package dbutil
 
 import (
 	"github.com/jinzhu/gorm"
@@ -7,9 +7,9 @@ import (
 )
 
 // GetTags gets tags from the db whose ids are in a specified slice
-func GetTags(ids []uint) ([]models.Tag, error) {
+func GetTags(db *gorm.DB, ids []uint) ([]models.Tag, error) {
 	var tags []models.Tag
-	if err := DB.Where("id in (?)", ids).
+	if err := db.Where("id in (?)", ids).
 		Find(&tags).Error; err != nil && err != gorm.ErrRecordNotFound {
 		return tags, err
 	}
@@ -17,10 +17,10 @@ func GetTags(ids []uint) ([]models.Tag, error) {
 }
 
 // VerifyNotes checks if notes with given ids exist
-func VerifyNotes(ids []uint) error {
+func VerifyNotes(db *gorm.DB, ids []uint) error {
 	for _, id := range ids {
 		var note models.Note
-		DB.Where("id = ?", id).Find(&note)
+		db.Where("id = ?", id).Find(&note)
 		if note.ID == 0 {
 			return errors.NoteNotFound
 		}
@@ -29,10 +29,10 @@ func VerifyNotes(ids []uint) error {
 }
 
 // LoadCollectionNotes loads the notes into a collection
-func LoadCollectionNotes(c *models.Collection) error {
+func LoadCollectionNotes(db *gorm.DB, c *models.Collection) error {
 	// Find collection note relationships
 	var collectioNotes []models.CollectionNote
-	if err := DB.
+	if err := db.
 		Preload("Note.Tags").
 		Preload("Note").
 		Where("collection_id = ?", c.ID).
@@ -50,8 +50,8 @@ func LoadCollectionNotes(c *models.Collection) error {
 }
 
 // UpdateNoteSearchText sets the searchtext field for a note with the given id
-func UpdateNoteSearchText(id uint) error {
-	if err := DB.Exec(`UPDATE notes n SET searchtext = result_vector
+func UpdateNoteSearchText(db *gorm.DB, id uint) error {
+	if err := db.Exec(`UPDATE notes n SET searchtext = result_vector
 		FROM (select note_id, to_tsvector('english',note_title) ||
 		to_tsvector('english', note_description) ||
 		to_tsvector('english', tag_name) ||
@@ -79,8 +79,8 @@ func UpdateNoteSearchText(id uint) error {
 }
 
 // UpdateCollectionSearchText sets the searchtext field for a collection with the given id
-func UpdateCollectionSearchText(id uint) error {
-	if err := DB.Exec(`UPDATE collections c SET searchtext = result_vector
+func UpdateCollectionSearchText(db *gorm.DB, id uint) error {
+	if err := db.Exec(`UPDATE collections c SET searchtext = result_vector
 		FROM (select collection_id, to_tsvector('english',collection_title) ||
 		to_tsvector('english', collection_description) ||
 		to_tsvector('english', tag_name) ||

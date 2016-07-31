@@ -3,12 +3,12 @@ package search
 import (
 	"strings"
 
-	"github.com/project-domino/domino-go/db"
+	"github.com/jinzhu/gorm"
 	"github.com/project-domino/domino-go/models"
 )
 
 // Notes returns all notes that match a given query
-func Notes(q string, items int, page int) ([]models.Note, error) {
+func Notes(db *gorm.DB, q string, items int, page int) ([]models.Note, error) {
 	var notes []models.Note
 
 	searchQuery, err := ParseQuery(q)
@@ -18,7 +18,7 @@ func Notes(q string, items int, page int) ([]models.Note, error) {
 	// qSelectors := searchQuery.Selectors
 	qText := strings.Join(searchQuery.Text, " & ")
 
-	if err := db.DB.
+	if err := db.
 		Preload("Tags").
 		Where(queryFormat, qText).
 		Where("published = ?", true).
