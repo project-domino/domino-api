@@ -10,13 +10,15 @@ func init() {
 	api.RegisterVersion("1.0.0-alpha", func(db *gorm.DB, r gin.IRouter) {
 		// Collection API
 		r.POST("/collection", TODO)
-		r.Group("/collection/:collection", LoadCollection(db, true)).
+		r.Group("/collection/:collection", LoadCollection(db)).
 			GET("/", Terminal("collection")).
 			POST("/", TODO)
 
 		// Note API
-		r.POST("/note", TODO)
-		r.Group("/note/:note", LoadNote(db, true)).
+		r.Group("/note").
+			GET("/", TODO).
+			POST("/", TODO)
+		r.Group("/note/:note", LoadNote(db)).
 			GET("/", Terminal("note")).
 			POST("/", TODO)
 
