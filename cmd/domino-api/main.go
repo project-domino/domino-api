@@ -8,12 +8,12 @@ import (
 	"github.com/project-domino/domino-go/middleware"
 
 	_ "github.com/jinzhu/gorm/dialects/postgres"
-	// _ "github.com/jinzhu/gorm/dialects/sqlite"
+	_ "github.com/jinzhu/gorm/dialects/sqlite"
 	_ "github.com/project-domino/domino-go/api/v1"
 )
 
 func main() {
-	db := OpenDB(Config.Database)
+	db := Config.Database.Open()
 	if err := SetupDB(db); err != nil {
 		log.Fatal(err)
 	}
@@ -39,6 +39,7 @@ func main() {
 	}
 
 	// Start serving.
+	log.Println("Ready to serve on", Config.HTTP.ServeOn())
 	if err := r.Run(Config.HTTP.ServeOn()); err != nil {
 		log.Println(err)
 	}

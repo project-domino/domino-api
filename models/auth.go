@@ -10,8 +10,8 @@ import (
 type AuthToken struct {
 	gorm.Model
 
-	User    User
-	UserID  uint
-	Token   string
-	Expires time.Time
+	User    User      `json:"-"`
+	UserID  uint      `json:"-"`
+	Token   string    `json:"token"`
+	Expires time.Time `json:"expires"`
 }

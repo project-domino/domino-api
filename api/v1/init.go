@@ -8,10 +8,10 @@ import (
 
 func init() {
 	api.RegisterVersion("1.0.0-alpha", func(db *gorm.DB, r gin.IRoutes) {
-		r.GET("/", func(c *gin.Context) {
-			c.JSON(200, "Hello, world!")
-		})
-		r.POST("/auth/create_token",
+		r.POST("/user/create",
+			User(db, false, "admin"),
+			CreateUser(db))
+		r.POST("/user/auth_token/create",
 			User(db, true),
 			CreateAuthToken(db))
 	})

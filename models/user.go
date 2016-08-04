@@ -1,6 +1,7 @@
 package models
 
 import (
+	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -16,30 +17,43 @@ const (
 type User struct {
 	gorm.Model
 
-	Type     string
-	Name     string
-	UserName string
-	Passhash string `json:"-" xml:"-"`
+	Type     string `json:"type"`
+	Name     string `json:"name"`
+	UserName string `json:"username"`
+	Passhash string `json:"-"`
 
 	// Only for writer
-	UniversityID uint
-	University   University
-	Notes        []Note       `gorm:"ForeignKey:AuthorID"`
-	Collections  []Collection `gorm:"ForeignKey:AuthorID"`
+	UniversityID uint         `json:"-"`
+	University   University   `json:"-"`
+	Notes        []Note       `gorm:"ForeignKey:AuthorID" json:"-"`
+	Collections  []Collection `gorm:"ForeignKey:AuthorID" json:"-"`
 
-	Email          string
-	EmailVerified  bool
-	SendNewsletter bool
+	Email          string `json:"-"` // `json:"email"`
+	EmailVerified  bool   `json:"-"` // `json:"email_verified"`
+	SendNewsletter bool   `json:"-"` // `json:"email_newsletter"`
 
 	// Ranking Info
-	UpvoteCollections   []Collection `gorm:"many2many:upvotecollection_user;"`
-	DownvoteCollections []Collection `gorm:"many2many:downvotecollection_user;"`
+	UpvoteCollections   []Collection `gorm:"many2many:upvotecollection_user;" json:"-"`
+	DownvoteCollections []Collection `gorm:"many2many:downvotecollection_user;" json:"-"`
 
-	UpvoteComments   []Comment `gorm:"many2many:upvotecomment_user;"`
-	DownvoteComments []Comment `gorm:"many2many:downvotecomment_user;"`
+	UpvoteComments   []Comment `gorm:"many2many:upvotecomment_user;" json:"-"`
+	DownvoteComments []Comment `gorm:"many2many:downvotecomment_user;" json:"-"`
 
-	UpvoteNotes   []Note `gorm:"many2many:upvotenote_user;"`
-	DownvoteNotes []Note `gorm:"many2many:downvotenote_user;"`
+	UpvoteNotes   []Note `gorm:"many2many:upvotenote_user;" json:"-"`
+	DownvoteNotes []Note `gorm:"many2many:downvotenote_user;" json:"-"`
+}
+
+// GetUser extracts a pointer to a User struct (or nil) from a Gin context.
+func GetUser(c *gin.Context) *User {
+	u, ok := c.Get("user")
+	if !ok {
+		return nil
+	}
+	user, ok := u.(*User)
+	if !ok {
+		return nil
+	}
+	return user
 }
 
 // CheckPassword checks if the provided password is correct. Note that it will

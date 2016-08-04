@@ -1,31 +1,9 @@
 package main
 
 import (
-	"log"
-	"time"
-
 	"github.com/jinzhu/gorm"
-	"github.com/project-domino/domino-go/config"
 	"github.com/project-domino/domino-go/models"
 )
-
-// OpenDB opens a database connection.
-func OpenDB(dbConfig config.Database) *gorm.DB {
-	for {
-		log.Printf("Connecting to DB at %s...", dbConfig.URL)
-		db, err := gorm.Open(
-			dbConfig.Type,
-			dbConfig.URL,
-		)
-		if err == nil {
-			db.LogMode(dbConfig.Debug)
-			return db
-		}
-		log.Println(err)
-		log.Println("Failed to connect to database.")
-		time.Sleep(5 * time.Second)
-	}
-}
 
 // SetupDB initializes the database with empty tables of all the needed types.
 func SetupDB(db *gorm.DB) error {

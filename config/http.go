@@ -17,6 +17,6 @@ var DefaultHTTP = HTTP{
 }
 
 // ServeOn returns a string appropriate for e.g. http.ListenAndServe.
-func (httpConfig HTTP) ServeOn() string {
-	return fmt.Sprintf("%s:%d", httpConfig.Host, httpConfig.Port)
+func (config HTTP) ServeOn() string {
+	return fmt.Sprintf("%s:%d", config.Host, config.Port)
 }
