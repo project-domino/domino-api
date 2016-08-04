@@ -7,18 +7,22 @@ import (
 
 	"github.com/blang/semver"
 	"github.com/gin-gonic/gin"
+	"github.com/jinzhu/gorm"
 )
+
+// Func is a type for API initialization functions.
+type Func func(*gorm.DB, gin.IRoutes)
 
 type api struct {
 	version semver.Version
-	routes  func(gin.IRoutes)
+	routes  Func
 }
 
 var apiLock sync.Mutex
 var knownAPIs []api
 
 // RegisterVersion adds an API version.
-func RegisterVersion(version string, routes func(gin.IRoutes)) {
+func RegisterVersion(version string, routes Func) {
 	sv := semver.MustParse(version)
 
 	apiLock.Lock()
@@ -54,7 +58,7 @@ func AllVersions() []string {
 
 // AllVersionRoutes returns a map of version strings to routes for all supported
 // API versions.
-func AllVersionRoutes() map[string]func(gin.IRoutes) {
+func AllVersionRoutes() map[string]Func {
 	apiLock.Lock()
 	defer apiLock.Unlock()
 
@@ -68,7 +72,7 @@ func AllVersionRoutes() map[string]func(gin.IRoutes) {
 	}
 
 	// Then, build the output.
-	out := make(map[string]func(gin.IRoutes), len(m))
+	out := make(map[string]Func, len(m))
 	for _, api := range m {
 		out[fmt.Sprintf("v%d", api.version.Major)] = api.routes
 	}

@@ -8,15 +8,16 @@ import (
 	"github.com/project-domino/domino-go/middleware"
 
 	_ "github.com/jinzhu/gorm/dialects/postgres"
+	// _ "github.com/jinzhu/gorm/dialects/sqlite"
 	_ "github.com/project-domino/domino-go/api/v1"
 )
 
 func main() {
-	// OpenDB(Config.Database)
-	// if err := SetupDB(); err != nil {
-	// 	log.Fatal(err)
-	// }
-	// defer DB.Close()
+	db := OpenDB(Config.Database)
+	if err := SetupDB(db); err != nil {
+		log.Fatal(err)
+	}
+	defer db.Close()
 
 	// Enable/disable gin's debug mode.
 	if Config.HTTP.Debug {
@@ -34,7 +35,7 @@ func main() {
 	// Add routes.
 	r.GET("/", api.Version)
 	for version, routes := range api.AllVersionRoutes() {
-		routes(r.Group("/" + version))
+		routes(db, r.Group("/"+version))
 	}
 
 	// Start serving.
