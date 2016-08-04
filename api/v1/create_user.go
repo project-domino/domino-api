@@ -1,19 +1,24 @@
 package v1
 
 import (
+	"regexp"
+
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
 	"github.com/project-domino/domino-go/errors"
 	"github.com/project-domino/domino-go/models"
 )
 
+var usernameRegexp = regexp.MustCompile("[A-Za-z0-9_.-]+")
+
 // CreateUser creates a new user.
 //
 // The handler takes the body parameters name, username and password, which are
-// each strings corresponding to the appropriate values. Optionally, type may be
-// provided. It must be one of the values "admin", "writer", or "general". If
-// its value is not "general", the request must be performed by an authenticated
-// user whose type is "admin".
+// each strings corresponding to the appropriate values. The username must be
+// composed solely of the ASCII alphanumerics, underscores, periods, and dashes.
+// Optionally, a body parameter type may be provided. It must be one of the
+// values "admin", "writer", or "general". If its value is not "general", the
+// request must be performed by an authenticated user whose type is "admin".
 //
 // The handler then responds with the user's JSON representation.
 func CreateUser(db *gorm.DB) gin.HandlerFunc {
@@ -27,6 +32,10 @@ func CreateUser(db *gorm.DB) gin.HandlerFunc {
 		username, ok := c.GetPostForm("username")
 		if !ok {
 			errors.Apply(c, errors.MissingParameters)
+			return
+		}
+		if !usernameRegexp.MatchString(username) {
+			errors.Apply(c, errors.BadParameters)
 			return
 		}
 		password, ok := c.GetPostForm("password")

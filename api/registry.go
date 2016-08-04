@@ -11,7 +11,7 @@ import (
 )
 
 // Func is a type for API initialization functions.
-type Func func(*gorm.DB, gin.IRoutes)
+type Func func(*gorm.DB, gin.IRouter)
 
 type api struct {
 	version semver.Version

@@ -14,7 +14,7 @@ import (
 
 var authorizationRegexp = regexp.MustCompile("([A-Za-z]+) (.+)")
 
-// User returns a middleware that attempts to load a user by authentication
+// LoginUser returns a middleware that attempts to load a user by authentication
 // token or username and password, as passed in the Authorization header, while
 // also applying given constraints.
 //
@@ -27,7 +27,7 @@ var authorizationRegexp = regexp.MustCompile("([A-Za-z]+) (.+)")
 // Example Headers:
 //     Authorization: Basic dXNlcm5hbWU6cGFzc3dvcmQ=
 //     Authorization: Token 1ae79b24250d6eea3c10033f013af79a
-func User(db *gorm.DB, required bool, requiredTypes ...string) gin.HandlerFunc {
+func LoginUser(db *gorm.DB, required bool, requiredTypes ...string) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var err error
 		user := models.GetUser(c)
